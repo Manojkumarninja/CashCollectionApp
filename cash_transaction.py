@@ -15,11 +15,11 @@ TRANSACTION_TABLE = "FnV_CashCollection_TransactionBase"
 
 USERS = {
     "admin@ninjacart.com":          {"password": "Admin@123", "name": "Admin"},
-    "abishanbarasan@ninjacart.com": {"password": "123456",    "name": "Abishan Barasan"},
-    "pradeep.es@ninjacart.com":     {"password": "123456",    "name": "Pradeep ES"},
+    "naveenarumugam@ninjacart.com": {"password": "123456",    "name": "Naveen Arumugam"},
+    "varatharajan@ninjacart.com": {"password": "Varatharajan@123",    "name": "Varadharajan"},
 }
 
-PAYMENT_MODE_OPTIONS = ["Cash", "UPI", "Net Banking", "Cheque", "Credit"]
+PAYMENT_MODE_OPTIONS = ["Cash", "UPI", "Net Banking", "Cheque"]
 
 
 # ─────────────────────────────────────────────
