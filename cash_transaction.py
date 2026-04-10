@@ -386,7 +386,7 @@ def show_record_transaction():
         st.text_input("Payment Status", value=status_preview, disabled=True)
 
     collection_window = st.selectbox("🕐 Collection Window",
-                                     ["Time of Delivery", "Before 5", "After 5", "Next Day"])
+                                     ["Time of Delivery", "Before 5", "After 5","After 7","After 9", "Next Day"])
 
     remark_reason = None
     if outstanding_preview > 0:
