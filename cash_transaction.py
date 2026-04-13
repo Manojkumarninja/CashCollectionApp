@@ -507,6 +507,7 @@ def show_view_records():
             b.Facility,
             COUNT(DISTINCT b.SaleOrderId)            AS TotalOrders,
             SUM(b.InvoiceAmount)                     AS TotalInvoiceValue,
+            SUM(b.CashAmount)                        AS TotalCashAmount,
             COALESCE(SUM(t.AmountPaid), 0)           AS AmountCollected,
             SUM(b.CashAmount) - COALESCE(SUM(t.AmountPaid), 0) AS AmountPending
         FROM {BASE_TABLE} b
@@ -521,11 +522,12 @@ def show_view_records():
         return
 
     # Overall metrics
-    m1, m2, m3, m4 = st.columns(4)
+    m1, m2, m3, m4, m5 = st.columns(5)
     m1.metric("Total Orders",          int(summary_df["TotalOrders"].sum()))
     m2.metric("Total Invoice (₹)",     f"₹{summary_df['TotalInvoiceValue'].sum():,.2f}")
-    m3.metric("Total Collected (₹)",   f"₹{summary_df['AmountCollected'].sum():,.2f}")
-    m4.metric("Total Pending (₹)",     f"₹{summary_df['AmountPending'].sum():,.2f}")
+    m3.metric("Total Cash (₹)",        f"₹{summary_df['TotalCashAmount'].sum():,.2f}")
+    m4.metric("Total Collected (₹)",   f"₹{summary_df['AmountCollected'].sum():,.2f}")
+    m5.metric("Total Pending (₹)",     f"₹{summary_df['AmountPending'].sum():,.2f}")
 
     st.divider()
     st.markdown("#### 🧑‍✈️ Driver-wise Summary")
@@ -534,6 +536,7 @@ def show_view_records():
             "Driver": "Driver", "Facility": "Facility",
             "TotalOrders": "Total Orders",
             "TotalInvoiceValue": "Invoice Value (₹)",
+            "TotalCashAmount": "Cash Amount (₹)",
             "AmountCollected": "Collected (₹)",
             "AmountPending": "Pending (₹)",
         }),
