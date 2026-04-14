@@ -39,6 +39,8 @@ USERS = {
     "reddyashokkumar964@gamil.com":            {"password": "Reddyashokkumar964@123",     "name": "Ashok Kumar",   "facilities": [4222]},
     "dineshdkdineshdk21@gmail.com":            {"password": "Dineshdkdineshdk21@123",     "name": "Dinesh",        "facilities": [923]},
     "kiranchinnu0230@gmail.com":               {"password": "Kiranchinnu0230@123",        "name": "Kiran",         "facilities": [4224]},
+    "koushiknagaraj28@gmail.com":               {"password": "Koushiknagaraj28@123",        "name": "Koushik Nagaraj",         "facilities": [9645]},
+    "chowdaiahp50@gmail.com":               {"password": "Chowdaiahp50@123",        "name": "Chowdaiah",         "facilities": [4265]},
 }
 
 PAYMENT_MODE_OPTIONS = ["Cash", "UPI", "Net Banking", "Cheque"]
