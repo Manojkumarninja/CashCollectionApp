@@ -14,9 +14,31 @@ BASE_TABLE        = "FnV_CashCollection_Base"
 TRANSACTION_TABLE = "FnV_CashCollection_TransactionBase"
 
 USERS = {
-    "admin@ninjacart.com":          {"password": "Admin@123", "name": "Admin"},
-    "naveenarumugam@ninjacart.com": {"password": "123456",    "name": "Naveen Arumugam"},
-    "varatharajan@ninjacart.com": {"password": "Varatharajan@123",    "name": "Varadharajan"},
+    "admin@ninjacart.com":                      {"password": "Admin@123",          "name": "Admin",             "facilities": "all"},
+    "naveenarumugam@ninjacart.com":             {"password": "123456",             "name": "Naveen Arumugam",   "facilities": "all"},
+    "varatharajan@ninjacart.com":               {"password": "Varatharajan@123",   "name": "Varadharajan",      "facilities": "all"},
+    "kjayalakshmi947@gmail.com":               {"password": "123456",             "name": "Jayalakshmi",       "facilities": [9722]},
+    "hmonavi564@gmail.com":                    {"password": "123456",             "name": "Monavi",            "facilities": [2829]},
+    "shivubujji849@gmail.com":                 {"password": "123456",             "name": "Shivubujji",        "facilities": [9663]},
+    "somsbond007@gmail.com":                   {"password": "123456",             "name": "Soms",              "facilities": [9662]},
+    "ramesshy1503@gmail.com":                  {"password": "123456",             "name": "Ramesh",            "facilities": [9565]},
+    "vishuvarthankuppusamy@ninjacart.com":      {"password": "123456",             "name": "Vishu Varthan",     "facilities": [4572]},
+    "adarshsony03141@gmail.com":               {"password": "123456",             "name": "Adarsh",            "facilities": [9592]},
+    "krishnankrishna7480@gmail.com":           {"password": "123456",             "name": "Krishnan",          "facilities": [2773]},
+    "yallusnayak5@gmail.com":                  {"password": "123456",             "name": "Yallus Nayak",      "facilities": [2038]},
+    "rajeshraju6560@gmail.com":                {"password": "123456",             "name": "Rajesh",            "facilities": [9555]},
+    "nageshag45@gmail.com":                    {"password": "123456",             "name": "Nagesh",            "facilities": [4571]},
+    "amaresha@ninjacart.com":                  {"password": "123456",             "name": "Amaresha",          "facilities": [1851]},
+    "chandrashakar702@gmail.com":              {"password": "123456",             "name": "Chandrashakar",     "facilities": [5054]},
+    "ma9986296393@gamil.com":                  {"password": "123456",             "name": "MA",                "facilities": [759]},
+    "boddureddy@ninjacart.com":                {"password": "123456",             "name": "Boddu Reddy",       "facilities": [9476]},
+    "gurukirans7@gmail.com":                   {"password": "123456",             "name": "Gurukiran",         "facilities": [1352]},
+    "sunny.9738108777@gmail.com":              {"password": "123456",             "name": "Sunny",             "facilities": [474]},
+    "srinivasseenu1019@gmail.com":             {"password": "123456",             "name": "Srinivas",          "facilities": [2051]},
+    "ganeshg5012@gmail.com":                   {"password": "123456",             "name": "Ganesh",            "facilities": [3727]},
+    "reddyashokkumar964@gamil.com":            {"password": "123456",             "name": "Ashok Kumar",       "facilities": [4222]},
+    "dineshdkdineshdk21@gmail.com":            {"password": "123456",             "name": "Dinesh",            "facilities": [923]},
+    "kiranchinnu0230@gmail.com":               {"password": "123456",             "name": "Kiran",             "facilities": [4224]},
 }
 
 PAYMENT_MODE_OPTIONS = ["Cash", "UPI", "Net Banking", "Cheque"]
@@ -78,12 +100,20 @@ def get_delivery_dates():
 
 
 @st.cache_data(ttl=60)
-def get_facilities(delivery_date):
-    df = run_query(
-        f"SELECT DISTINCT FacilityId, Facility FROM {BASE_TABLE} "
-        f"WHERE DeliveryDate = %s ORDER BY Facility",
-        params=(delivery_date,),
-    )
+def get_facilities(delivery_date, allowed_facilities=None):
+    if allowed_facilities and allowed_facilities != "all":
+        placeholders = ",".join(["%s"] * len(allowed_facilities))
+        df = run_query(
+            f"SELECT DISTINCT FacilityId, Facility FROM {BASE_TABLE} "
+            f"WHERE DeliveryDate = %s AND FacilityId IN ({placeholders}) ORDER BY Facility",
+            params=(delivery_date, *allowed_facilities),
+        )
+    else:
+        df = run_query(
+            f"SELECT DISTINCT FacilityId, Facility FROM {BASE_TABLE} "
+            f"WHERE DeliveryDate = %s ORDER BY Facility",
+            params=(delivery_date,),
+        )
     return df
 
 
@@ -156,6 +186,7 @@ def show_login():
                 st.session_state["logged_in"]    = True
                 st.session_state["username"]     = email
                 st.session_state["display_name"] = USERS[email]["name"]
+                st.session_state["facilities"]   = USERS[email]["facilities"]
                 st.rerun()
             else:
                 st.error("Invalid email or password.")
@@ -202,7 +233,7 @@ def show_record_transaction():
             format_func=lambda d: d.strftime("%d %b %Y") if hasattr(d, "strftime") else str(d),
         )
     with col2:
-        facilities_df = get_facilities(delivery_date)
+        facilities_df = get_facilities(delivery_date, st.session_state.get("facilities"))
         if facilities_df.empty:
             st.warning("No facilities found.")
             return
@@ -470,7 +501,7 @@ def show_view_records():
         )
     with col2:
         if filter_date:
-            facilities_df = get_facilities(filter_date)
+            facilities_df = get_facilities(filter_date, st.session_state.get("facilities"))
             fac_map = {None: "All Facilities"}
             fac_map.update({row["FacilityId"]: row["Facility"]
                             for _, row in facilities_df.iterrows()})
