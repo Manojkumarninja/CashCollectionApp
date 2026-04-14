@@ -16,7 +16,7 @@ TRANSACTION_TABLE = "FnV_CashCollection_TransactionBase"
 USERS = {
     "admin@ninjacart.com":          {"password": "Admin@123", "name": "Admin"},
     "naveenarumugam@ninjacart.com": {"password": "123456",    "name": "Naveen Arumugam"},
-    "varatharajan@ninjacart.com": {"password": "image.pngVaratharajan@123",    "name": "Varadharajan"},
+    "varatharajan@ninjacart.com": {"password": "Varatharajan@123",    "name": "Varadharajan"},
 }
 
 PAYMENT_MODE_OPTIONS = ["Cash", "UPI", "Net Banking", "Cheque"]
@@ -529,61 +529,23 @@ def show_view_records():
     m4.metric("Total Collected (₹)",   f"₹{summary_df['AmountCollected'].sum():,.2f}")
     m5.metric("Total Pending (₹)",     f"₹{summary_df['AmountPending'].sum():,.2f}")
 
-    tab1, tab2 = st.tabs(["🧑‍✈️ Driver-wise Summary", "👤 Customer-wise Summary"])
+    st.divider()
+    st.markdown("#### 🧑‍✈️ Driver-wise Summary")
+    st.dataframe(
+        summary_df.rename(columns={
+            "Driver": "Driver", "Facility": "Facility",
+            "TotalOrders": "Total Orders",
+            "TotalInvoiceValue": "Invoice Value (₹)",
+            "TotalCashAmount": "Cash Amount (₹)",
+            "AmountCollected": "Collected (₹)",
+            "AmountPending": "Pending (₹)",
+        }),
+        use_container_width=True, hide_index=True,
+    )
 
-    with tab1:
-        st.dataframe(
-            summary_df.rename(columns={
-                "Driver": "Driver", "Facility": "Facility",
-                "TotalOrders": "Total Orders",
-                "TotalInvoiceValue": "Invoice Value (₹)",
-                "TotalCashAmount": "Cash Amount (₹)",
-                "AmountCollected": "Collected (₹)",
-                "AmountPending": "Pending (₹)",
-            }),
-            use_container_width=True, hide_index=True,
-        )
-        csv = summary_df.to_csv(index=False).encode("utf-8")
-        st.download_button("⬇️ Download Driver Summary CSV", data=csv,
-                           file_name="driver_summary.csv", mime="text/csv")
-
-    with tab2:
-        customer_df = run_query(f"""
-            SELECT
-                b.Customer,
-                b.CustomerId,
-                b.Facility,
-                b.Driver,
-                COUNT(DISTINCT b.SaleOrderId)            AS TotalOrders,
-                SUM(b.InvoiceAmount)                     AS TotalInvoiceValue,
-                SUM(b.CashAmount)                        AS TotalCashAmount,
-                COALESCE(SUM(t.AmountPaid), 0)           AS AmountCollected,
-                SUM(b.CashAmount) - COALESCE(SUM(t.AmountPaid), 0) AS AmountPending
-            FROM {BASE_TABLE} b
-            LEFT JOIN {TRANSACTION_TABLE} t ON b.SaleOrderId = t.SaleOrderId
-            WHERE {' AND '.join(where)}
-            GROUP BY b.Customer, b.CustomerId, b.Facility, b.Driver
-            ORDER BY b.Facility, b.Customer
-        """, params=params if params else None)
-
-        if customer_df.empty:
-            st.info("No customer records found.")
-        else:
-            st.dataframe(
-                customer_df.rename(columns={
-                    "Customer": "Customer", "CustomerId": "Customer ID",
-                    "Facility": "Facility", "Driver": "Driver",
-                    "TotalOrders": "Total Orders",
-                    "TotalInvoiceValue": "Invoice Value (₹)",
-                    "TotalCashAmount": "Cash Amount (₹)",
-                    "AmountCollected": "Collected (₹)",
-                    "AmountPending": "Pending (₹)",
-                }),
-                use_container_width=True, hide_index=True,
-            )
-            csv2 = customer_df.to_csv(index=False).encode("utf-8")
-            st.download_button("⬇️ Download Customer Summary CSV", data=csv2,
-                               file_name="customer_summary.csv", mime="text/csv")
+    csv = summary_df.to_csv(index=False).encode("utf-8")
+    st.download_button("⬇️ Download CSV", data=csv,
+                       file_name="driver_summary.csv", mime="text/csv")
 
 
 # ─────────────────────────────────────────────
