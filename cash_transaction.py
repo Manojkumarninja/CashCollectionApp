@@ -41,6 +41,7 @@ USERS = {
     "kiranchinnu0230@gmail.com":               {"password": "Kiranchinnu0230@123",        "name": "Kiran",         "facilities": [4224]},
     "koushiknagaraj28@gmail.com":               {"password": "Koushiknagaraj28@123",        "name": "Koushik Nagaraj",         "facilities": [9645]},
     "chowdaiahp50@gmail.com":               {"password": "Chowdaiahp50@123",        "name": "Chowdaiah",         "facilities": [4265]},
+    "ammun670@gmail.com":               {"password": "Ammun670@123",        "name": "Ammun",         "facilities": [4225]},
 }
 
 PAYMENT_MODE_OPTIONS = ["Cash", "UPI", "Net Banking", "Cheque"]
@@ -420,8 +421,12 @@ def show_record_transaction():
     with col2:
         st.text_input("Payment Status", value=status_preview, disabled=True)
 
-    collection_window = st.selectbox("🕐 Collection Window",
-                                     ["Time of Delivery", "Before 5", "After 5","After 7","After 9", "Next Day"])
+    col1, col2 = st.columns(2)
+    with col1:
+        collection_window = st.selectbox("🕐 Collection Window",
+                                         ["Time of Delivery", "Before 5", "After 5","After 7","After 9", "Next Day"])
+    with col2:
+        bdm_name = st.text_input("👤 BDM Name", placeholder="Enter BDM Name")
 
     remark_reason = None
     if outstanding_preview > 0:
@@ -461,13 +466,14 @@ def show_record_transaction():
                     f"""INSERT INTO {TRANSACTION_TABLE}
                         (SaleOrderId, TransactionId, AmountPaid, PaymentMode,
                          OustandingAmount, PaymentStatus, ReMark, CollectionWindow,
-                         CreatedBy, UpdatedBy, CreatedAt, UpdatedAt)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                         BDMName, CreatedBy, UpdatedBy, CreatedAt, UpdatedAt)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                     params=(
                         int(selected_order_id), next_txn_id,
                         round(amount_paid, 4), payment_mode,
                         outstanding, pay_status,
                         remark_reason, collection_window,
+                        bdm_name.strip() if bdm_name else None,
                         st.session_state["username"], st.session_state["username"],
                         datetime.now(), datetime.now(),
                     ),
