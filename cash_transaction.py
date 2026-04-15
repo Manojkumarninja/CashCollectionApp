@@ -184,11 +184,13 @@ def show_login():
         email    = st.text_input("Mail ID", placeholder="Enter your email")
         password = st.text_input("Password", type="password", placeholder="Enter your password")
         if st.button("Login", use_container_width=True, type="primary"):
-            if email in USERS and USERS[email]["password"] == password:
+            email_lower = email.strip().lower()
+            matched_key = next((k for k in USERS if k.lower() == email_lower), None)
+            if matched_key and USERS[matched_key]["password"] == password.strip():
                 st.session_state["logged_in"]    = True
-                st.session_state["username"]     = email
-                st.session_state["display_name"] = USERS[email]["name"]
-                st.session_state["facilities"]   = USERS[email]["facilities"]
+                st.session_state["username"]     = matched_key
+                st.session_state["display_name"] = USERS[matched_key]["name"]
+                st.session_state["facilities"]   = USERS[matched_key]["facilities"]
                 st.rerun()
             else:
                 st.error("Invalid email or password.")
